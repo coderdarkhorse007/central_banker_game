@@ -29,14 +29,15 @@ Play it live: *(add your GitHub Pages URL here once deployed)*
   Both headline and core CPI are simulated for "your path": core is modeled as
   headline minus a food/energy "spread" that starts at its real observed value
   and drifts back toward its long-run historical average.
-- **Market X**: a fictional commodity index (a crude-oil stand-in) with no real
-  FRED counterpart. It drifts on its own each quarter and feeds directly into
-  the headline/core spread — exactly like a real energy shock, it moves
-  headline inflation without the Fed having any direct control over it.
+- **Market X**: a fictional commodity index with no real FRED counterpart. It
+  drifts on its own each quarter and feeds directly into the headline/core
+  spread — exactly like a real-world supply shock, it moves headline inflation
+  without the Fed having any direct control over it.
 - **Random shocks**: each quarter there's roughly a 1-in-5 chance of a
-  macro event firing — an oil spike/crash, a demand boom/bust, a financial-stress
-  yield spike, or a labor-market shock — narrated in the Briefing panel. Effects
-  decay over the following quarters rather than resetting instantly.
+  macro event firing — a Market X spike/crash, a demand boom/bust, a
+  financial-stress yield spike, or a labor-market shock — narrated in the
+  Briefing panel. Effects decay over the following quarters rather than
+  resetting instantly.
 - **Visualization**: The "Economic System" panel is a WebGL scene (three.js)
   showing rate/inflation/yield/unemployment/Market X as connected, reactive
   nodes — styled in the spirit of NVIDIA Omniverse's connected-system visuals,

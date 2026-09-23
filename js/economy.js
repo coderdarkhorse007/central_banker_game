@@ -24,14 +24,14 @@ const ECONOMY_CONFIG = {
   // both headline and core share via the same output gap).
   avgHeadlineCoreSpread: 0.0424, // long-run avg of (headline YoY - core YoY), 1962-present (FRED)
   spreadPersistence: 0.97,       // monthly persistence of the spread, same cadence as the output gap
-  // "Market X" — a fictional globally-traded commodity (a crude-oil stand-in)
-  // with its own price index. Its quarterly return feeds straight into the
-  // headline/core spread, exactly like a real energy shock: it moves headline
+  // "Market X" — a fictional globally-traded commodity with its own price
+  // index. Its quarterly return feeds straight into the headline/core
+  // spread, exactly like a real-world supply shock: it moves headline
   // inflation without monetary policy having any direct control over it.
   marketX: {
     startLevel: 100,
-    quarterlyVolStd: 0.04,       // routine quarterly volatility (Gaussian, ~4% std dev)
-    oilPassThroughToSpread: 0.15, // pp added to the headline/core spread per 100% Market X move
+    quarterlyVolStd: 0.04,          // routine quarterly volatility (Gaussian, ~4% std dev)
+    passThroughToSpread: 0.15,      // pp added to the headline/core spread per 100% Market X move
   },
   shockProbability: 0.20, // chance PER QUARTER that a random macro shock fires
   yieldShockDecay: 0.6,   // quarterly decay of a financial-stress yield premium
@@ -53,7 +53,7 @@ function gaussianRandom() {
 // gameplay drama, not fit to data — same spirit as the rest of this model.
 const SHOCK_TYPES = [
   {
-    key: "oil_spike",
+    key: "marketx_spike",
     weight: 3,
     apply: () => {
       const magnitude = 0.15 + Math.random() * 0.20; // +15% to +35%
@@ -64,7 +64,7 @@ const SHOCK_TYPES = [
     },
   },
   {
-    key: "oil_crash",
+    key: "marketx_crash",
     weight: 2,
     apply: () => {
       const magnitude = 0.15 + Math.random() * 0.20;
@@ -181,7 +181,7 @@ class EconomyState {
 
     this.marketX = Math.max(this.marketX * (1 + marketXReturn), 1);
     this.marketXReturn = marketXReturn;
-    this.spread += marketXReturn * cfg.marketX.oilPassThroughToSpread * 100;
+    this.spread += marketXReturn * cfg.marketX.passThroughToSpread * 100;
 
     return shockText;
   }
