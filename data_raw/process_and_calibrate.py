@@ -27,19 +27,29 @@ fedfunds = load_monthly("FEDFUNDS")
 yield10y = load_daily_as_monthly("DGS10")
 unrate = load_monthly("UNRATE")
 
+# Year-over-year and month-over-month changes MUST be computed on each series'
+# own complete, gapless monthly index before merging — CPIAUCSL/CPILFESL have
+# a real hole at 2025-10 (that month's release was delayed by the government
+# shutdown), and merging+dropna() first would delete that row and silently
+# shift every later .shift(12)/.diff(1) by one calendar month.
+cpi_yoy = (cpi / cpi.shift(12) - 1) * 100
+cpi_core_yoy = (cpi_core / cpi_core.shift(12) - 1) * 100
+real_rate = fedfunds - cpi_yoy
+d_infl_1m = cpi_yoy.diff(1)
+d_unrate_1m = unrate.diff(1)
+
 df = pd.DataFrame({
     "cpi": cpi,
     "cpi_core": cpi_core,
     "fedfunds": fedfunds,
     "yield10y": yield10y,
     "unrate": unrate,
+    "cpi_yoy": cpi_yoy,
+    "cpi_core_yoy": cpi_core_yoy,
+    "real_rate": real_rate,
+    "d_infl_1m": d_infl_1m,
+    "d_unrate_1m": d_unrate_1m,
 }).dropna()
-
-df["cpi_yoy"] = (df["cpi"] / df["cpi"].shift(12) - 1) * 100
-df["cpi_core_yoy"] = (df["cpi_core"] / df["cpi_core"].shift(12) - 1) * 100
-df["real_rate"] = df["fedfunds"] - df["cpi_yoy"]
-df["d_infl_1m"] = df["cpi_yoy"].diff(1)
-df["d_unrate_1m"] = df["unrate"].diff(1)
 
 # neutral real rate: long-run average real rate over the full available window
 neutral_real_rate = df["real_rate"].mean()

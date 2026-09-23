@@ -1,5 +1,137 @@
 [
   {
+    "date": "1962-01",
+    "cpi_index": 30.04,
+    "cpi_yoy": 0.6702,
+    "cpi_core_index": 31.2,
+    "cpi_core_yoy": 1.2987,
+    "fedfunds": 2.15,
+    "yield10y": 4.0832,
+    "unrate": 5.8,
+    "real_rate": 1.4798
+  },
+  {
+    "date": "1962-02",
+    "cpi_index": 30.11,
+    "cpi_yoy": 0.9048,
+    "cpi_core_index": 31.2,
+    "cpi_core_yoy": 1.2987,
+    "fedfunds": 2.37,
+    "yield10y": 4.0394,
+    "unrate": 5.5,
+    "real_rate": 1.4652
+  },
+  {
+    "date": "1962-03",
+    "cpi_index": 30.17,
+    "cpi_yoy": 1.1059,
+    "cpi_core_index": 31.3,
+    "cpi_core_yoy": 1.2945,
+    "fedfunds": 2.85,
+    "yield10y": 3.9305,
+    "unrate": 5.6,
+    "real_rate": 1.7441
+  },
+  {
+    "date": "1962-04",
+    "cpi_index": 30.21,
+    "cpi_yoy": 1.3418,
+    "cpi_core_index": 31.3,
+    "cpi_core_yoy": 1.2945,
+    "fedfunds": 2.78,
+    "yield10y": 3.843,
+    "unrate": 5.6,
+    "real_rate": 1.4382
+  },
+  {
+    "date": "1962-05",
+    "cpi_index": 30.24,
+    "cpi_yoy": 1.3405,
+    "cpi_core_index": 31.4,
+    "cpi_core_yoy": 1.6181,
+    "fedfunds": 2.36,
+    "yield10y": 3.8736,
+    "unrate": 5.5,
+    "real_rate": 1.0195
+  },
+  {
+    "date": "1962-06",
+    "cpi_index": 30.21,
+    "cpi_yoy": 1.2399,
+    "cpi_core_index": 31.4,
+    "cpi_core_yoy": 1.2903,
+    "fedfunds": 2.68,
+    "yield10y": 3.909,
+    "unrate": 5.5,
+    "real_rate": 1.4401
+  },
+  {
+    "date": "1962-07",
+    "cpi_index": 30.22,
+    "cpi_yoy": 1.0027,
+    "cpi_core_index": 31.4,
+    "cpi_core_yoy": 1.2903,
+    "fedfunds": 2.71,
+    "yield10y": 4.0143,
+    "unrate": 5.4,
+    "real_rate": 1.7073
+  },
+  {
+    "date": "1962-08",
+    "cpi_index": 30.28,
+    "cpi_yoy": 1.1356,
+    "cpi_core_index": 31.5,
+    "cpi_core_yoy": 1.2862,
+    "fedfunds": 2.93,
+    "yield10y": 3.9757,
+    "unrate": 5.7,
+    "real_rate": 1.7944
+  },
+  {
+    "date": "1962-09",
+    "cpi_index": 30.42,
+    "cpi_yoy": 1.4676,
+    "cpi_core_index": 31.5,
+    "cpi_core_yoy": 1.2862,
+    "fedfunds": 2.9,
+    "yield10y": 3.9789,
+    "unrate": 5.6,
+    "real_rate": 1.4324
+  },
+  {
+    "date": "1962-10",
+    "cpi_index": 30.38,
+    "cpi_yoy": 1.3342,
+    "cpi_core_index": 31.5,
+    "cpi_core_yoy": 1.2862,
+    "fedfunds": 2.9,
+    "yield10y": 3.9255,
+    "unrate": 5.4,
+    "real_rate": 1.5658
+  },
+  {
+    "date": "1962-11",
+    "cpi_index": 30.38,
+    "cpi_yoy": 1.3342,
+    "cpi_core_index": 31.5,
+    "cpi_core_yoy": 0.9615,
+    "fedfunds": 2.94,
+    "yield10y": 3.9158,
+    "unrate": 5.7,
+    "real_rate": 1.6058
+  },
+  {
+    "date": "1962-12",
+    "cpi_index": 30.38,
+    "cpi_yoy": 1.2329,
+    "cpi_core_index": 31.6,
+    "cpi_core_yoy": 1.2821,
+    "fedfunds": 2.93,
+    "yield10y": 3.8645,
+    "unrate": 5.5,
+    "real_rate": 1.6971
+  },
+  {
     "date": "1963-01",
     "cpi_index": 30.44,
     "cpi_yoy": 1.3316,
@@ -8283,113 +8415,102 @@
     "real_rate": 1.1974
   },
   {
-    "date": "2025-11",
-    "cpi_index": 325.063,
-    "cpi_yoy": 2.9883,
-    "cpi_core_index": 331.043,
-    "cpi_core_yoy": 2.8943,
-    "fedfunds": 3.88,
-    "yield10y": 4.0939,
-    "unrate": 4.5,
-    "real_rate": 0.8917
-  },
-  {
     "date": "2025-12",
     "cpi_index": 326.031,
-    "cpi_yoy": 3.0023,
+    "cpi_yoy": 2.6533,
     "cpi_core_index": 331.814,
-    "cpi_core_yoy": 2.838,
+    "cpi_core_yoy": 2.6465,
     "fedfunds": 3.72,
     "yield10y": 4.1432,
     "unrate": 4.4,
-    "real_rate": 0.7177
+    "real_rate": 1.0667
   },
   {
     "date": "2026-01",
     "cpi_index": 326.588,
-    "cpi_yoy": 2.8287,
+    "cpi_yoy": 2.3912,
     "cpi_core_index": 332.793,
-    "cpi_core_yoy": 2.9493,
+    "cpi_core_yoy": 2.512,
     "fedfunds": 3.64,
     "yield10y": 4.2135,
     "unrate": 4.3,
-    "real_rate": 0.8113
+    "real_rate": 1.2488
   },
   {
     "date": "2026-02",
     "cpi_index": 327.46,
-    "cpi_yoy": 2.6646,
+    "cpi_yoy": 2.434,
     "cpi_core_index": 333.512,
-    "cpi_core_yoy": 2.7335,
+    "cpi_core_yoy": 2.4725,
     "fedfunds": 3.64,
     "yield10y": 4.1258,
     "unrate": 4.4,
-    "real_rate": 0.9754
+    "real_rate": 1.206
   },
   {
     "date": "2026-03",
     "cpi_index": 330.293,
-    "cpi_yoy": 3.3202,
+    "cpi_yoy": 3.286,
     "cpi_core_index": 334.165,
-    "cpi_core_yoy": 2.6731,
+    "cpi_core_yoy": 2.6022,
     "fedfunds": 3.64,
     "yield10y": 4.2459,
     "unrate": 4.3,
-    "real_rate": 0.3198
+    "real_rate": 0.354
   },
   {
     "date": "2026-04",
     "cpi_index": 332.407,
-    "cpi_yoy": 3.947,
+    "cpi_yoy": 3.7792,
     "cpi_core_index": 335.423,
-    "cpi_core_yoy": 2.9884,
+    "cpi_core_yoy": 2.7433,
     "fedfunds": 3.64,
     "yield10y": 4.3191,
     "unrate": 4.3,
-    "real_rate": -0.307
+    "real_rate": -0.1392
   },
   {
     "date": "2026-05",
     "cpi_index": 333.979,
-    "cpi_yoy": 4.27,
+    "cpi_yoy": 4.1666,
     "cpi_core_index": 336.121,
-    "cpi_core_yoy": 2.9571,
+    "cpi_core_yoy": 2.8229,
     "fedfunds": 3.63,
     "yield10y": 4.484,
     "unrate": 4.3,
-    "real_rate": -0.64
+    "real_rate": -0.5366
   },
   {
     "date": "2026-06",
     "cpi_index": 332.568,
-    "cpi_yoy": 3.7265,
+    "cpi_yoy": 3.4635,
     "cpi_core_index": 336.065,
-    "cpi_core_yoy": 2.8058,
+    "cpi_core_yoy": 2.5658,
     "fedfunds": 3.63,
     "yield10y": 4.4705,
     "unrate": 4.2,
-    "real_rate": -0.0965
+    "real_rate": 0.1665
   },
   {
     "date": "2026-07",
     "cpi_index": 332.813,
-    "cpi_yoy": 3.5398,
+    "cpi_yoy": 3.3039,
     "cpi_core_index": 336.789,
-    "cpi_core_yoy": 2.7867,
+    "cpi_core_yoy": 2.4665,
     "fedfunds": 3.63,
     "yield10y": 4.5995,
     "unrate": 4.1,
-    "real_rate": 0.0902
+    "real_rate": 0.3261
   },
   {
     "date": "2026-08",
     "cpi_index": 334.131,
-    "cpi_yoy": 3.713,
+    "cpi_yoy": 3.353,
     "cpi_core_index": 337.765,
-    "cpi_core_yoy": 2.7635,
+    "cpi_core_yoy": 2.4462,
     "fedfunds": 3.63,
     "yield10y": 4.6843,
     "unrate": 4.1,
-    "real_rate": -0.083
+    "real_rate": 0.277
   }
 ]

@@ -13,7 +13,7 @@ Play it live: *(add your GitHub Pages URL here once deployed)*
 - **Data**: Starting conditions and the "actual history" comparison lines come
   from real FRED series — `CPIAUCSL` (headline CPI), `CPILFESL` (core CPI, ex
   food & energy), `FEDFUNDS`, `DGS10` (10-year Treasury yield, resampled from
-  daily to monthly averages), and `UNRATE` — covering Jan 1963 through the most
+  daily to monthly averages), and `UNRATE` — covering Jan 1962 through the most
   recently published month. The picker lets you choose a 1-year (4-quarter) or
   2-year (8-quarter) term starting from any month in that window.
 - **Simulation**: Turn-by-turn dynamics come from a simplified, hand-tuned
@@ -42,7 +42,7 @@ js/game.js              Turn/game-state management, scoring, news log, date-rang
 js/charts.js            Chart.js line charts (player path vs. history)
 js/visualization.js     three.js "Economic System" scene
 js/main.js              Wires everything to the DOM, including the range picker
-data/full_history.json      Monthly FRED data, Jan 1963 – present
+data/full_history.json      Monthly FRED data, Jan 1962 – present
 data/calibration.json       Raw OLS regression output (reference only)
 data_raw/                   Source CSVs + the Python script that builds data/
 ```

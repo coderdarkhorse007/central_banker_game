@@ -1,10 +1,10 @@
 // Simplified illustrative macro model (Phillips curve + Okun's law toy model),
 // hand-tuned for gameplay. Not a forecasting tool. 10Y yield weights are fitted
-// via OLS regression on 1963-present FRED data (CPIAUCSL, CPILFESL, FEDFUNDS,
+// via OLS regression on 1962-present FRED data (CPIAUCSL, CPILFESL, FEDFUNDS,
 // DGS10, UNRATE).
 
 const ECONOMY_CONFIG = {
-  neutralRealRate: 1.02,  // long-run avg real fed funds rate, 1963-present (FRED)
+  neutralRealRate: 1.03,  // long-run avg real fed funds rate, 1962-present (FRED)
   rho: 0.97,              // monthly persistence of the output gap
   kIS: 0.09,              // output gap sensitivity to real-rate gap
   kPI: 0.035,             // inflation sensitivity to output gap (Phillips curve)
@@ -13,9 +13,9 @@ const ECONOMY_CONFIG = {
   minRate: 0.0,
   maxRate: 25.0,
   yield10y: {
-    intercept: 2.37574,
-    weightFedFunds: 0.75892,
-    weightCpiYoy: -0.06218,
+    intercept: 2.36294,
+    weightFedFunds: 0.75837,
+    weightCpiYoy: -0.05949,
   },
 };
 
