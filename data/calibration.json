@@ -1,5 +1,6 @@
 {
   "neutral_real_rate": 1.0311,
+  "avg_headline_core_spread": 0.0424,
   "inflation_model": {
     "lag_months": 12,
     "intercept": 0.00318,

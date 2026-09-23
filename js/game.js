@@ -146,10 +146,12 @@ class Game {
     return {
       startCpi: startRecord.cpi_yoy,
       playerEndCpi: playerEnd.cpiYoy,
+      playerEndCoreCpi: playerEnd.coreCpiYoy,
       playerEndUnrate: playerEnd.unrate,
       playerEndYield10y: playerEnd.yield10y,
       hasRealEnd: !!realEnd,
       realEndCpi: realEnd ? realEnd.cpi_yoy : null,
+      realEndCoreCpi: realEnd ? realEnd.cpi_core_yoy : null,
       realEndUnrate: realEnd ? realEnd.unrate : null,
       realEndYield10y: realEnd ? realEnd.yield10y : null,
       latestRealDateLabel: formatDateLabel(this.latestRealDate),

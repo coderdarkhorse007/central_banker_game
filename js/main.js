@@ -19,7 +19,7 @@ function refreshStats() {
   const real = game.realHistoryAtCurrentTurn; // undefined once past the latest published FRED month
 
   el("stat-cpi").textContent = fmtPct(snap.cpiYoy);
-  el("stat-cpi-core").textContent = real ? fmtPct(real.cpi_core_yoy) : "—";
+  el("stat-cpi-core").textContent = fmtPct(snap.coreCpiYoy);
   el("stat-fedfunds").textContent = fmtPct(snap.fedfunds);
   el("stat-yield10y").textContent = fmtPct(snap.yield10y);
   el("stat-unrate").textContent = fmtPct(snap.unrate);
@@ -52,12 +52,12 @@ function refreshSlider() {
 function showEndModal() {
   const s = game.summarize();
   const actualHistoryLine = s.hasRealEnd
-    ? `<p><strong>Actual history:</strong> CPI inflation ${fmtPct(s.realEndCpi)}, unemployment ${fmtPct(s.realEndUnrate)}, 10Y yield ${fmtPct(s.realEndYield10y)}.</p>`
+    ? `<p><strong>Actual history:</strong> CPI inflation ${fmtPct(s.realEndCpi)} (core ${fmtPct(s.realEndCoreCpi)}), unemployment ${fmtPct(s.realEndUnrate)}, 10Y yield ${fmtPct(s.realEndYield10y)}.</p>`
     : `<p><strong>Actual history:</strong> not yet available for ${game.endDateLabel} — FRED data currently runs through ${s.latestRealDateLabel}.</p>`;
   el("end-title").textContent = `Term Complete — ${game.endDateLabel}`;
   el("end-summary").innerHTML = `
     <p class="verdict ${s.verdictClass}">${s.verdict}</p>
-    <p><strong>Your outcome:</strong> CPI inflation ${fmtPct(s.playerEndCpi)}, unemployment ${fmtPct(s.playerEndUnrate)}, 10Y yield ${fmtPct(s.playerEndYield10y)}.</p>
+    <p><strong>Your outcome:</strong> CPI inflation ${fmtPct(s.playerEndCpi)} (core ${fmtPct(s.playerEndCoreCpi)}), unemployment ${fmtPct(s.playerEndUnrate)}, 10Y yield ${fmtPct(s.playerEndYield10y)}.</p>
     ${actualHistoryLine}
     <p>Average unemployment above the natural rate over your term: ${fmtPct(s.avgExcessUnemployment)} — a rough proxy for the human cost of your policy path.</p>
   `;

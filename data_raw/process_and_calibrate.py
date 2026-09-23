@@ -54,6 +54,11 @@ df = pd.DataFrame({
 # neutral real rate: long-run average real rate over the full available window
 neutral_real_rate = df["real_rate"].mean()
 
+# long-run average gap between headline and core CPI YoY — the mean-reversion
+# target for the food/energy "spread" the game projects forward once a
+# playthrough runs past the latest real CPI print
+avg_headline_core_spread = (df["cpi_yoy"] - df["cpi_core_yoy"]).mean()
+
 # --- Calibration 1: inflation response to real rate, lagged 12 months ---
 lag_infl = 12
 reg1 = pd.DataFrame({
@@ -92,6 +97,7 @@ r2_3 = 1 - resid3.var() / reg3["yield10y"].var()
 
 calibration = {
     "neutral_real_rate": round(float(neutral_real_rate), 4),
+    "avg_headline_core_spread": round(float(avg_headline_core_spread), 4),
     "inflation_model": {
         "lag_months": lag_infl,
         "intercept": round(float(a1), 5),

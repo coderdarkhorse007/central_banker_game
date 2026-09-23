@@ -53,15 +53,16 @@ class ChartSet {
       data: {
         labels,
         datasets: [
-          makeLineDataset("Your path", CHART_COLORS.player, false),
+          makeLineDataset("Your path (headline)", CHART_COLORS.player, false),
+          makeLineDataset("Your path (core)", CHART_COLORS.player2, false),
           makeLineDataset("Actual history (headline, CPIAUCSL)", CHART_COLORS.ghost, true),
           makeLineDataset("Actual history (core, CPILFESL)", CHART_COLORS.ghost2, true),
         ],
       },
       options: baseChartOptions("CPI YoY %"),
     });
-    this.cpiChart.data.datasets[1].data = ghostSeries.cpiYoy;
-    this.cpiChart.data.datasets[2].data = ghostSeries.cpiCoreYoy;
+    this.cpiChart.data.datasets[2].data = ghostSeries.cpiYoy;
+    this.cpiChart.data.datasets[3].data = ghostSeries.cpiCoreYoy;
 
     this.ratesChart = new Chart(document.getElementById("chart-rates"), {
       type: "line",
@@ -99,6 +100,7 @@ class ChartSet {
 
   pushSnapshot(turnIndex, snap) {
     this.cpiChart.data.datasets[0].data[turnIndex] = snap.cpiYoy;
+    this.cpiChart.data.datasets[1].data[turnIndex] = snap.coreCpiYoy;
     this.ratesChart.data.datasets[0].data[turnIndex] = snap.fedfunds;
     this.ratesChart.data.datasets[1].data[turnIndex] = snap.yield10y;
     this.unrateChart.data.datasets[0].data[turnIndex] = snap.unrate;
