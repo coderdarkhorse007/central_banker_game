@@ -12,7 +12,7 @@
   <header id="app-header">
     <div class="header-left">
       <h1>Central Banker</h1>
-      <p id="scenario-subtitle" class="subtitle">1979&ndash;1983 &middot; The Volcker Disinflation</p>
+      <p id="scenario-subtitle" class="subtitle">Set the fed funds rate each quarter and watch inflation, unemployment, and the 10-year Treasury yield respond &mdash; then compare your path against what actually happened.</p>
     </div>
     <div class="header-right">
       <div class="turn-readout">
@@ -31,6 +31,9 @@
     <div class="term-toggle">
       <button type="button" class="term-btn" data-quarters="4">1 Year <span>(4 Quarters)</span></button>
       <button type="button" class="term-btn" data-quarters="8">2 Years <span>(8 Quarters)</span></button>
+      <button type="button" class="term-btn" data-quarters="12">3 Years <span>(12 Quarters)</span></button>
+      <button type="button" class="term-btn" data-quarters="16">4 Years <span>(16 Quarters)</span></button>
+      <button type="button" class="term-btn" data-quarters="20">5 Years <span>(20 Quarters)</span></button>
     </div>
     <div class="range-control">
       <input type="range" id="range-start" min="0" max="0" step="1" value="0" />
@@ -42,6 +45,10 @@
     </div>
     <button id="apply-range-btn">Start / Restart With This Term</button>
     <p class="range-note">Pick a term length, then drag the slider to any starting month — including the most recent one, to start from today's real conditions. Data runs from Jan 1962 through the most recently published month; any quarters beyond that are yours to simulate since the real numbers don't exist yet.</p>
+    <div class="preset-row">
+      <span class="preset-label">Presets:</span>
+      <button type="button" id="preset-volcker-btn" class="preset-btn">Volcker Disinflation (1979&ndash;1984, 5 Years)</button>
+    </div>
   </section>
 
   <main id="app-main">

@@ -138,7 +138,6 @@ function setupRangePicker() {
 
 function updateHeaderForRange(startDate, endDate) {
   document.title = `Central Banker: ${formatDateLabel(startDate)} – ${formatDateLabel(endDate)}`;
-  el("scenario-subtitle").textContent = `${formatDateLabel(startDate)} – ${formatDateLabel(endDate)} · Set the fed funds rate and watch inflation, unemployment, and the 10Y yield respond`;
 }
 
 async function startNewGame(startDate, termQuartersForGame) {
@@ -190,6 +189,15 @@ async function init() {
   });
 
   el("restart-btn").addEventListener("click", () => {
+    const { startDate } = rangeLabels();
+    startNewGame(startDate, termQuarters);
+  });
+
+  el("preset-volcker-btn").addEventListener("click", () => {
+    setTermQuarters(20); // full 5-year arc, 1979-01 through 1984-01
+    const startIdx = allDates.indexOf("1979-01");
+    el("range-start").value = startIdx >= 0 ? startIdx : 0;
+    refreshRangeLabels();
     const { startDate } = rangeLabels();
     startNewGame(startDate, termQuarters);
   });
