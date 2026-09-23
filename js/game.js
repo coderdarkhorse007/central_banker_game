@@ -1,14 +1,30 @@
-const TOTAL_TURNS = 20; // 1979-Q1 (turn 0, setup) through 1983-Q4 (turn 20)
+const TURN_LENGTH_MONTHS = 3; // turns advance roughly one quarter at a time
 
-const QUARTER_MONTHS = ["01", "04", "07", "10"];
+// Every month present in the dataset, in order. The start/end range picker in
+// main.js indexes into this array, so any month can be chosen as a boundary —
+// not just calendar quarter-starts.
+function getAllDates(historyRecords) {
+  return historyRecords.map((r) => r.date);
+}
 
-function buildQuarterDates() {
-  const dates = [];
-  for (let y = 1979; y <= 1983; y++) {
-    for (const m of QUARTER_MONTHS) dates.push(`${y}-${m}`);
+function monthsBetween(a, b) {
+  const [ay, am] = a.split("-").map(Number);
+  const [by, bm] = b.split("-").map(Number);
+  return (by - ay) * 12 + (bm - am);
+}
+
+// Turns are spaced ~TURN_LENGTH_MONTHS apart starting from startDate, so a
+// playthrough is a manageable number of clicks even over a multi-decade
+// window — but the chosen start and end months are always hit exactly, even
+// if that makes the final turn shorter or longer than the others.
+function buildTurnDates(allDates, startIdx, endIdx) {
+  const dates = [allDates[startIdx]];
+  let i = startIdx;
+  while (i < endIdx) {
+    i = Math.min(i + TURN_LENGTH_MONTHS, endIdx);
+    dates.push(allDates[i]);
   }
-  dates.push("1984-01"); // turn 20 endpoint, after 20 quarterly decisions
-  return dates; // 21 entries, dates[0] = 1979-01 (starting point, turn 0)
+  return dates;
 }
 
 const FLAVOR_EVENTS = {
@@ -17,6 +33,13 @@ const FLAVOR_EVENTS = {
   "1981-07": "Jul 1981: A recession officially begins as tight policy bites into output and hiring.",
   "1982-10": "Late 1982: Unemployment is approaching its worst levels since the Great Depression.",
   "1983-01": "Early 1983: Growth is turning up again as price pressures fade.",
+  "2001-01": "Jan 2001: The dot-com bust is dragging on growth; the Fed begins cutting rates aggressively.",
+  "2007-10": "Late 2007: Cracks are showing in mortgage markets as home prices roll over.",
+  "2008-10": "Oct 2008: A full-blown financial crisis is underway after a major investment bank's collapse.",
+  "2020-04": "Apr 2020: A pandemic shutdown has thrown tens of millions out of work almost overnight.",
+  "2021-04": "Spring 2021: Prices are picking up as reopening demand collides with strained supply chains.",
+  "2022-04": "Spring 2022: Inflation is running at its hottest pace in four decades.",
+  "2023-04": "Spring 2023: Regional bank failures test confidence even as the Fed keeps rates high.",
 };
 
 function formatDateLabel(ym) {
@@ -26,10 +49,14 @@ function formatDateLabel(ym) {
 }
 
 class Game {
-  constructor(historyRecords) {
-    this.quarterDates = buildQuarterDates();
+  constructor(historyRecords, allDates, startDate, endDate) {
     this.byMonth = {};
     historyRecords.forEach((r) => (this.byMonth[r.date] = r));
+
+    const startIdx = allDates.indexOf(startDate);
+    const endIdx = allDates.indexOf(endDate);
+    this.quarterDates = buildTurnDates(allDates, startIdx, endIdx);
+    this.totalTurns = this.quarterDates.length - 1;
 
     const initial = this.byMonth[this.quarterDates[0]];
     this.state = new EconomyState(initial);
@@ -43,6 +70,10 @@ class Game {
 
   get currentDateLabel() {
     return formatDateLabel(this.quarterDates[this.turn]);
+  }
+
+  get endDateLabel() {
+    return formatDateLabel(this.quarterDates[this.totalTurns]);
   }
 
   get realHistoryAtCurrentTurn() {
@@ -69,39 +100,42 @@ class Game {
 
   advanceTurn(targetRate) {
     if (this.finished) return null;
+    const prevDateKey = this.quarterDates[this.turn];
     const prevSnap = this.state.snapshot(this.currentDateLabel, this.turn);
     this.turn += 1;
     const dateKey = this.quarterDates[this.turn];
-    const snap = this.state.advanceQuarter(targetRate, this.turn, formatDateLabel(dateKey));
+    const monthsElapsed = monthsBetween(prevDateKey, dateKey);
+    const snap = this.state.advance(targetRate, monthsElapsed, this.turn, formatDateLabel(dateKey));
 
     let text = this.proceduralCommentary(prevSnap, snap);
     if (FLAVOR_EVENTS[dateKey]) text = FLAVOR_EVENTS[dateKey] + " " + text;
     this.addNews(dateKey, text);
 
-    if (this.turn >= TOTAL_TURNS) this.finished = true;
+    if (this.turn >= this.totalTurns) this.finished = true;
     return snap;
   }
 
   summarize() {
     const startRecord = this.byMonth[this.quarterDates[0]];
-    const realEnd = this.byMonth[this.quarterDates[TOTAL_TURNS]];
+    const realEnd = this.byMonth[this.quarterDates[this.totalTurns]];
     const playerEnd = this.state.history[this.state.history.length - 1];
 
     let excessUnemployment = 0;
     for (const snap of this.state.history) {
-      excessUnemployment += Math.max(snap.unrate - ECONOMY_CONFIG.uNatural, 0);
+      excessUnemployment += Math.max(snap.unrate - this.state.uNatural, 0);
     }
     excessUnemployment = excessUnemployment / this.state.history.length;
 
     let verdict, verdictClass;
-    if (playerEnd.cpiYoy < 4 && excessUnemployment < 3) {
+    const cpiDrop = startRecord.cpi_yoy - playerEnd.cpiYoy;
+    if (playerEnd.cpiYoy < 3 && excessUnemployment < 2) {
       verdict = "Excellent — inflation tamed with a comparatively soft landing.";
       verdictClass = "good";
-    } else if (playerEnd.cpiYoy < 5) {
+    } else if (playerEnd.cpiYoy < startRecord.cpi_yoy || playerEnd.cpiYoy < 4) {
       verdict = "Success — inflation brought under control, at real economic cost.";
       verdictClass = "good";
-    } else if (playerEnd.cpiYoy < 8) {
-      verdict = "Mixed — inflation eased but remains uncomfortably high.";
+    } else if (cpiDrop > -2) {
+      verdict = "Mixed — inflation eased or held steady but remains uncomfortable.";
       verdictClass = "warn";
     } else {
       verdict = "Failure — inflation was never brought under control.";
@@ -112,10 +146,10 @@ class Game {
       startCpi: startRecord.cpi_yoy,
       playerEndCpi: playerEnd.cpiYoy,
       playerEndUnrate: playerEnd.unrate,
-      playerEndGs10: playerEnd.gs10,
+      playerEndYield10y: playerEnd.yield10y,
       realEndCpi: realEnd.cpi_yoy,
       realEndUnrate: realEnd.unrate,
-      realEndGs10: realEnd.gs10,
+      realEndYield10y: realEnd.yield10y,
       avgExcessUnemployment: excessUnemployment,
       verdict,
       verdictClass,

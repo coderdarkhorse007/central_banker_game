@@ -1,9 +1,12 @@
-let game, chartSet, viz, historyRecords;
+let game, chartSet, viz, historyRecords, allDates, termQuarters;
+
+const DEFAULT_START = "1979-01";
+const DEFAULT_TERM_QUARTERS = 8; // 2 years
 
 const el = (id) => document.getElementById(id);
 
 async function loadHistory() {
-  const res = await fetch("data/volcker_history.json");
+  const res = await fetch("data/full_history.json");
   return res.json();
 }
 
@@ -16,16 +19,18 @@ function refreshStats() {
   const real = game.realHistoryAtCurrentTurn;
 
   el("stat-cpi").textContent = fmtPct(snap.cpiYoy);
+  el("stat-cpi-core").textContent = fmtPct(real.cpi_core_yoy);
   el("stat-fedfunds").textContent = fmtPct(snap.fedfunds);
-  el("stat-gs10").textContent = fmtPct(snap.gs10);
+  el("stat-yield10y").textContent = fmtPct(snap.yield10y);
   el("stat-unrate").textContent = fmtPct(snap.unrate);
 
   el("stat-cpi-ghost").textContent = `history: ${fmtPct(real.cpi_yoy)}`;
+  el("stat-cpi-core-ghost").textContent = `history: ${fmtPct(real.cpi_core_yoy)}`;
   el("stat-fedfunds-ghost").textContent = `history: ${fmtPct(real.fedfunds)}`;
-  el("stat-gs10-ghost").textContent = `history: ${fmtPct(real.gs10)}`;
+  el("stat-yield10y-ghost").textContent = `history: ${fmtPct(real.yield10y)}`;
   el("stat-unrate-ghost").textContent = `history: ${fmtPct(real.unrate)}`;
 
-  el("turn-counter").textContent = `${game.turn} / ${TOTAL_TURNS}`;
+  el("turn-counter").textContent = `${game.turn} / ${game.totalTurns}`;
   el("date-readout").textContent = game.currentDateLabel;
 }
 
@@ -45,12 +50,12 @@ function refreshSlider() {
 
 function showEndModal() {
   const s = game.summarize();
-  el("end-title").textContent = "Term Complete — January 1984";
+  el("end-title").textContent = `Term Complete — ${game.endDateLabel}`;
   el("end-summary").innerHTML = `
     <p class="verdict ${s.verdictClass}">${s.verdict}</p>
-    <p><strong>Your outcome:</strong> CPI inflation ${fmtPct(s.playerEndCpi)}, unemployment ${fmtPct(s.playerEndUnrate)}, 10Y yield ${fmtPct(s.playerEndGs10)}.</p>
-    <p><strong>Actual history:</strong> CPI inflation ${fmtPct(s.realEndCpi)}, unemployment ${fmtPct(s.realEndUnrate)}, 10Y yield ${fmtPct(s.realEndGs10)}.</p>
-    <p>Average unemployment above the natural rate over your term: ${fmtPct(s.avgExcessUnemployment)} — a rough proxy for the human cost of your disinflation.</p>
+    <p><strong>Your outcome:</strong> CPI inflation ${fmtPct(s.playerEndCpi)}, unemployment ${fmtPct(s.playerEndUnrate)}, 10Y yield ${fmtPct(s.playerEndYield10y)}.</p>
+    <p><strong>Actual history:</strong> CPI inflation ${fmtPct(s.realEndCpi)}, unemployment ${fmtPct(s.realEndUnrate)}, 10Y yield ${fmtPct(s.realEndYield10y)}.</p>
+    <p>Average unemployment above the natural rate over your term: ${fmtPct(s.avgExcessUnemployment)} — a rough proxy for the human cost of your policy path.</p>
   `;
   el("end-modal").classList.remove("hidden");
 }
@@ -80,13 +85,78 @@ function onDelta(delta) {
   el("rate-slider-readout").textContent = v.toFixed(2);
 }
 
-async function init() {
-  historyRecords = await loadHistory();
-  game = new Game(historyRecords);
+// --- Date-range picker: pick a term length (in quarters), then a start month ---
 
-  const quarterLabels = game.quarterDates.map(formatDateLabel);
+function rangeLabels() {
+  const startIdx = parseInt(el("range-start").value, 10);
+  const termMonths = termQuarters * 3;
+  const endIdx = Math.min(startIdx + termMonths, allDates.length - 1);
+  return {
+    startIdx,
+    endIdx,
+    startDate: allDates[startIdx],
+    endDate: allDates[endIdx],
+  };
+}
+
+function refreshRangeLabels() {
+  const { startDate, endDate } = rangeLabels();
+  el("range-start-label").textContent = formatDateLabel(startDate);
+  el("range-end-label").textContent = formatDateLabel(endDate);
+}
+
+function setTermQuarters(quarters) {
+  termQuarters = quarters;
+  document.querySelectorAll(".term-btn").forEach((btn) => {
+    btn.classList.toggle("active", parseInt(btn.dataset.quarters, 10) === quarters);
+  });
+
+  const startInput = el("range-start");
+  const termMonths = termQuarters * 3;
+  const maxStartIdx = Math.max(allDates.length - 1 - termMonths, 0);
+  startInput.max = maxStartIdx;
+  if (parseInt(startInput.value, 10) > maxStartIdx) startInput.value = maxStartIdx;
+  el("range-max-label").textContent = formatDateLabel(allDates[maxStartIdx]);
+
+  refreshRangeLabels();
+}
+
+function setupRangePicker() {
+  const startInput = el("range-start");
+  startInput.min = 0;
+  startInput.max = allDates.length - 1; // provisional, so the value below isn't clamped to 0
+
+  const defaultStartIdx = allDates.indexOf(DEFAULT_START);
+  startInput.value = defaultStartIdx >= 0 ? defaultStartIdx : 0;
+
+  el("range-min-label").textContent = formatDateLabel(allDates[0]);
+
+  document.querySelectorAll(".term-btn").forEach((btn) => {
+    btn.addEventListener("click", () => setTermQuarters(parseInt(btn.dataset.quarters, 10)));
+  });
+
+  startInput.addEventListener("input", refreshRangeLabels);
+
+  setTermQuarters(DEFAULT_TERM_QUARTERS);
+}
+
+function updateHeaderForRange(startDate, endDate) {
+  document.title = `Central Banker: ${formatDateLabel(startDate)} – ${formatDateLabel(endDate)}`;
+  el("scenario-subtitle").textContent = `${formatDateLabel(startDate)} – ${formatDateLabel(endDate)} · Set the fed funds rate and watch inflation, unemployment, and the 10Y yield respond`;
+}
+
+async function startNewGame(startDate, endDate) {
+  if (chartSet) chartSet.destroy();
+  if (viz) viz.dispose();
+  el("end-modal").classList.add("hidden");
+  el("advance-btn").disabled = false;
+
+  game = new Game(historyRecords, allDates, startDate, endDate);
+  updateHeaderForRange(startDate, endDate);
+
+  const labels = game.quarterDates.map(formatDateLabel);
   const ghost = buildGhostSeries(historyRecords, game.quarterDates);
-  chartSet = new ChartSet(quarterLabels, ghost);
+  chartSet = new ChartSet(labels, ghost);
 
   const vizContainer = el("viz-canvas-container");
   viz = new EconomyVisualization(vizContainer, el("viz-canvas"));
@@ -97,6 +167,16 @@ async function init() {
   refreshStats();
   refreshNews();
   refreshSlider();
+}
+
+async function init() {
+  historyRecords = await loadHistory();
+  allDates = getAllDates(historyRecords);
+
+  setupRangePicker();
+
+  const { startDate, endDate } = rangeLabels();
+  await startNewGame(startDate, endDate);
 
   el("rate-slider").addEventListener("input", (e) => {
     el("rate-slider-readout").textContent = parseFloat(e.target.value).toFixed(2);
@@ -108,12 +188,14 @@ async function init() {
 
   el("advance-btn").addEventListener("click", onAdvance);
 
+  el("apply-range-btn").addEventListener("click", () => {
+    const { startDate, endDate } = rangeLabels();
+    startNewGame(startDate, endDate);
+  });
+
   el("restart-btn").addEventListener("click", () => {
-    el("end-modal").classList.add("hidden");
-    el("advance-btn").disabled = false;
-    chartSet.destroy();
-    viz.dispose();
-    init();
+    const { startDate, endDate } = rangeLabels();
+    startNewGame(startDate, endDate);
   });
 }
 

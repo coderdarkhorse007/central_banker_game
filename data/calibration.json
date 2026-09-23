@@ -1,24 +1,24 @@
 {
-  "neutral_real_rate": 3.5645,
+  "neutral_real_rate": 1.0202,
   "inflation_model": {
     "lag_months": 12,
-    "intercept": -0.06506,
-    "slope_vs_real_rate_gap": -0.02211,
-    "noise_std": 0.42157,
-    "r_squared": 0.0306
+    "intercept": 0.00269,
+    "slope_vs_real_rate_gap": 0.00629,
+    "noise_std": 0.38917,
+    "r_squared": 0.0018
   },
   "unemployment_model": {
     "lag_months": 9,
-    "intercept": 0.01113,
-    "slope_vs_real_rate_gap": -0.00381,
-    "noise_std": 0.22242,
-    "r_squared": 0.0033
+    "intercept": -0.00191,
+    "slope_vs_real_rate_gap": 0.00582,
+    "noise_std": 0.43563,
+    "r_squared": 0.0012
   },
   "yield10y_model": {
-    "weight_fedfunds": 0.61397,
-    "weight_cpi_yoy": -0.30477,
-    "intercept": 6.79085,
-    "noise_std": 1.03416,
-    "r_squared": 0.7086
+    "weight_fedfunds": 0.75892,
+    "weight_cpi_yoy": -0.06218,
+    "intercept": 2.37574,
+    "noise_std": 1.2751,
+    "r_squared": 0.8124
   }
 }

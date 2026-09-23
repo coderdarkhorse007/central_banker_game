@@ -2,6 +2,7 @@ const CHART_COLORS = {
   player: "#4fd1c5",
   player2: "#f6ad55",
   ghost: "#5a6b7a",
+  ghost2: "#63b3ed",
   grid: "#1c2733",
   text: "#8ea0b3",
 };
@@ -53,12 +54,14 @@ class ChartSet {
         labels,
         datasets: [
           makeLineDataset("Your path", CHART_COLORS.player, false),
-          makeLineDataset("Actual history", CHART_COLORS.ghost, true),
+          makeLineDataset("Actual history (headline, CPIAUCSL)", CHART_COLORS.ghost, true),
+          makeLineDataset("Actual history (core, CPILFESL)", CHART_COLORS.ghost2, true),
         ],
       },
       options: baseChartOptions("CPI YoY %"),
     });
     this.cpiChart.data.datasets[1].data = ghostSeries.cpiYoy;
+    this.cpiChart.data.datasets[2].data = ghostSeries.cpiCoreYoy;
 
     this.ratesChart = new Chart(document.getElementById("chart-rates"), {
       type: "line",
@@ -66,13 +69,15 @@ class ChartSet {
         labels,
         datasets: [
           makeLineDataset("Fed funds", CHART_COLORS.player, false),
-          makeLineDataset("10Y yield", CHART_COLORS.player2, false),
+          makeLineDataset("10Y yield (DGS10)", CHART_COLORS.player2, false),
           makeLineDataset("Fed funds (history)", CHART_COLORS.ghost, true),
+          makeLineDataset("10Y yield (history)", CHART_COLORS.ghost2, true),
         ],
       },
       options: baseChartOptions("Rate %"),
     });
     this.ratesChart.data.datasets[2].data = ghostSeries.fedfunds;
+    this.ratesChart.data.datasets[3].data = ghostSeries.yield10y;
 
     this.unrateChart = new Chart(document.getElementById("chart-unrate"), {
       type: "line",
@@ -95,7 +100,7 @@ class ChartSet {
   pushSnapshot(turnIndex, snap) {
     this.cpiChart.data.datasets[0].data[turnIndex] = snap.cpiYoy;
     this.ratesChart.data.datasets[0].data[turnIndex] = snap.fedfunds;
-    this.ratesChart.data.datasets[1].data[turnIndex] = snap.gs10;
+    this.ratesChart.data.datasets[1].data[turnIndex] = snap.yield10y;
     this.unrateChart.data.datasets[0].data[turnIndex] = snap.unrate;
     this.cpiChart.update();
     this.ratesChart.update();
@@ -112,11 +117,13 @@ class ChartSet {
 function buildGhostSeries(historyRecords, quarterDates) {
   const byMonth = {};
   historyRecords.forEach((r) => (byMonth[r.date] = r));
-  const series = { cpiYoy: [], fedfunds: [], unrate: [] };
+  const series = { cpiYoy: [], cpiCoreYoy: [], fedfunds: [], yield10y: [], unrate: [] };
   quarterDates.forEach((d) => {
     const r = byMonth[d];
     series.cpiYoy.push(r ? r.cpi_yoy : null);
+    series.cpiCoreYoy.push(r ? r.cpi_core_yoy : null);
     series.fedfunds.push(r ? r.fedfunds : null);
+    series.yield10y.push(r ? r.yield10y : null);
     series.unrate.push(r ? r.unrate : null);
   });
   return series;

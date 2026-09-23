@@ -12,7 +12,7 @@
   <header id="app-header">
     <div class="header-left">
       <h1>Central Banker</h1>
-      <p class="subtitle">1979&ndash;1983 &middot; The Volcker Disinflation</p>
+      <p id="scenario-subtitle" class="subtitle">1979&ndash;1983 &middot; The Volcker Disinflation</p>
     </div>
     <div class="header-right">
       <div class="turn-readout">
@@ -25,6 +25,24 @@
       </div>
     </div>
   </header>
+
+  <section id="range-panel" class="panel">
+    <h2>Choose Your Era</h2>
+    <div class="term-toggle">
+      <button type="button" class="term-btn" data-quarters="4">1 Year <span>(4 Quarters)</span></button>
+      <button type="button" class="term-btn" data-quarters="8">2 Years <span>(8 Quarters)</span></button>
+    </div>
+    <div class="range-control">
+      <input type="range" id="range-start" min="0" max="0" step="1" value="0" />
+    </div>
+    <div class="range-labels">
+      <span id="range-min-label" class="range-bound"></span>
+      <span class="range-selected"><span id="range-start-label"></span> &rarr; <span id="range-end-label"></span></span>
+      <span id="range-max-label" class="range-bound"></span>
+    </div>
+    <button id="apply-range-btn">Start / Restart With This Term</button>
+    <p class="range-note">Pick a term length, then drag the slider to any starting month. Data runs from Jan 1963 through the most recently published month.</p>
+  </section>
 
   <main id="app-main">
 
@@ -40,9 +58,14 @@
       <h2>Current Readings</h2>
       <div class="stat-grid">
         <div class="stat">
-          <span class="stat-label">CPI Inflation (YoY)</span>
+          <span class="stat-label">CPI Inflation, headline (YoY)</span>
           <span id="stat-cpi" class="stat-value">9.3%</span>
-          <span id="stat-cpi-ghost" class="stat-ghost">history: 9.3%</span>
+          <span id="stat-cpi-ghost" class="stat-ghost">history (headline): 9.3%</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">CPI Inflation, core ex food/energy (YoY)</span>
+          <span id="stat-cpi-core" class="stat-value">8.6%</span>
+          <span id="stat-cpi-core-ghost" class="stat-ghost">history (headline): 9.3%</span>
         </div>
         <div class="stat">
           <span class="stat-label">Fed Funds Rate</span>
@@ -50,9 +73,9 @@
           <span id="stat-fedfunds-ghost" class="stat-ghost">history: 10.1%</span>
         </div>
         <div class="stat">
-          <span class="stat-label">10-Year Treasury Yield</span>
-          <span id="stat-gs10" class="stat-value">9.1%</span>
-          <span id="stat-gs10-ghost" class="stat-ghost">history: 9.1%</span>
+          <span class="stat-label">10-Year Treasury Yield (DGS10)</span>
+          <span id="stat-yield10y" class="stat-value">9.1%</span>
+          <span id="stat-yield10y-ghost" class="stat-ghost">history: 9.1%</span>
         </div>
         <div class="stat">
           <span class="stat-label">Unemployment</span>
@@ -96,7 +119,7 @@
   </main>
 
   <footer id="app-footer">
-    <p>Simplified illustrative model calibrated loosely from FRED data (CPIAUCSL, FEDFUNDS, GS10, UNRATE), 1977&ndash;1985. Not a forecast.</p>
+    <p>Simplified illustrative model calibrated loosely from FRED data (CPIAUCSL, CPILFESL, FEDFUNDS, DGS10, UNRATE), 1963&ndash;present. Not a forecast.</p>
   </footer>
 
 </div>

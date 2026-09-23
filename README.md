@@ -1,22 +1,31 @@
-# Central Banker: The Volcker Disinflation
+# Central Banker
 
-A browser game that puts you at the helm of the Federal Reserve during 1979–1983,
-the era of Paul Volcker's fight against double-digit inflation. Set the fed funds
-rate every quarter and watch inflation, unemployment, and the 10-year Treasury
-yield respond — then compare your path against what actually happened.
+A browser game that puts you at the helm of the Federal Reserve for any period of
+history you pick — from the Volcker disinflation of 1979–83 to today's Fed. Pick a
+term length (1 or 2 years) and a starting month, set the fed funds rate every
+quarter, and watch inflation, unemployment, and the 10-year Treasury yield
+respond — then compare your path against what actually happened.
 
 Play it live: *(add your GitHub Pages URL here once deployed)*
 
 ## How it works
 
-- **Data**: Starting conditions and the "actual history" comparison line come from
-  real FRED series (`CPIAUCSL`, `FEDFUNDS`, `GS10`, `UNRATE`), 1977–1985.
+- **Data**: Starting conditions and the "actual history" comparison lines come
+  from real FRED series — `CPIAUCSL` (headline CPI), `CPILFESL` (core CPI, ex
+  food & energy), `FEDFUNDS`, `DGS10` (10-year Treasury yield, resampled from
+  daily to monthly averages), and `UNRATE` — covering Jan 1963 through the most
+  recently published month. The picker lets you choose a 1-year (4-quarter) or
+  2-year (8-quarter) term starting from any month in that window.
 - **Simulation**: Turn-by-turn dynamics come from a simplified, hand-tuned
   Phillips-curve/Okun's-law toy model (`js/economy.js`) — not a forecast, and not
-  fit directly to the historical data (a raw regression on this noisy 9-year
-  window was uninformative, so the model uses standard textbook relationships
-  with sensible signs and magnitudes instead). The 10-year yield response *is*
-  fit via OLS regression on the FRED data (R² ≈ 0.71).
+  fit directly to the historical data (a raw regression on this noisy window
+  was uninformative, so the model uses standard textbook relationships with
+  sensible signs and magnitudes instead). The natural rate of unemployment is
+  pinned to whatever the actual unemployment rate was on the quarter you start,
+  so the model behaves reasonably regardless of which era you pick. The 10-year
+  yield response *is* fit via OLS regression on the full FRED window (R² ≈ 0.81).
+  Only headline CPI is simulated for "your path" — core CPI is shown as a
+  historical reference line only.
 - **Visualization**: The "Economic System" panel is a WebGL scene (three.js)
   showing rate/inflation/yield/unemployment as connected, reactive nodes — styled
   in the spirit of NVIDIA Omniverse's connected-system visuals, but implemented
@@ -26,14 +35,14 @@ Play it live: *(add your GitHub Pages URL here once deployed)*
 ## Project structure
 
 ```
-index.html            Page shell
+index.html            Page shell, including the date-range picker
 css/style.css          Styling
 js/economy.js          Simulation model (EconomyState, ECONOMY_CONFIG)
-js/game.js              Turn/game-state management, scoring, news log
+js/game.js              Turn/game-state management, scoring, news log, date-range handling
 js/charts.js            Chart.js line charts (player path vs. history)
 js/visualization.js     three.js "Economic System" scene
-js/main.js              Wires everything to the DOM
-data/volcker_history.json   Monthly FRED data, Jan 1979 – Jan 1984
+js/main.js              Wires everything to the DOM, including the range picker
+data/full_history.json      Monthly FRED data, Jan 1963 – present
 data/calibration.json       Raw OLS regression output (reference only)
 data_raw/                   Source CSVs + the Python script that builds data/
 ```

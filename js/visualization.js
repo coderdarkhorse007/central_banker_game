@@ -137,8 +137,8 @@ class EconomyVisualization {
     const cpiT = (snap.cpiYoy - 1) / 14;
     this._setNode("cpi", cpiT, 0.35 + Math.min(Math.max(cpiT, 0), 1) * 0.4);
 
-    const gs10T = snap.gs10 / 20;
-    this._setNode("gs10", gs10T, 0.4 + gs10T * 0.3);
+    const yield10yT = snap.yield10y / 20;
+    this._setNode("gs10", yield10yT, 0.4 + yield10yT * 0.3);
 
     const unrateT = (snap.unrate - 4) / 10;
     this._setNode("unrate", unrateT, 0.35 + Math.min(Math.max(unrateT, 0), 1) * 0.4);

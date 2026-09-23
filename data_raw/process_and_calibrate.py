@@ -7,24 +7,41 @@ RAW = os.path.dirname(__file__)
 OUT_DATA = os.path.join(RAW, "..", "data")
 os.makedirs(OUT_DATA, exist_ok=True)
 
-def load(series):
+def load_monthly(series):
     df = pd.read_csv(os.path.join(RAW, f"{series}.csv"), parse_dates=["observation_date"])
     df = df.rename(columns={"observation_date": "date", series: "value"})
     df["value"] = pd.to_numeric(df["value"], errors="coerce")
     return df.set_index("date")["value"]
 
-cpi = load("CPIAUCSL")
-fedfunds = load("FEDFUNDS")
-gs10 = load("GS10")
-unrate = load("UNRATE")
+def load_daily_as_monthly(series):
+    df = pd.read_csv(os.path.join(RAW, f"{series}.csv"), parse_dates=["observation_date"])
+    df = df.rename(columns={"observation_date": "date", series: "value"})
+    df["value"] = pd.to_numeric(df["value"], errors="coerce")
+    df = df.set_index("date")["value"]
+    monthly = df.resample("MS").mean()
+    return monthly
 
-df = pd.DataFrame({"cpi": cpi, "fedfunds": fedfunds, "gs10": gs10, "unrate": unrate}).dropna()
+cpi = load_monthly("CPIAUCSL")
+cpi_core = load_monthly("CPILFESL")
+fedfunds = load_monthly("FEDFUNDS")
+yield10y = load_daily_as_monthly("DGS10")
+unrate = load_monthly("UNRATE")
+
+df = pd.DataFrame({
+    "cpi": cpi,
+    "cpi_core": cpi_core,
+    "fedfunds": fedfunds,
+    "yield10y": yield10y,
+    "unrate": unrate,
+}).dropna()
+
 df["cpi_yoy"] = (df["cpi"] / df["cpi"].shift(12) - 1) * 100
+df["cpi_core_yoy"] = (df["cpi_core"] / df["cpi_core"].shift(12) - 1) * 100
 df["real_rate"] = df["fedfunds"] - df["cpi_yoy"]
 df["d_infl_1m"] = df["cpi_yoy"].diff(1)
 df["d_unrate_1m"] = df["unrate"].diff(1)
 
-# neutral real rate: long-run average real rate over full available window
+# neutral real rate: long-run average real rate over the full available window
 neutral_real_rate = df["real_rate"].mean()
 
 # --- Calibration 1: inflation response to real rate, lagged 12 months ---
@@ -51,17 +68,17 @@ r2_2 = 1 - resid2.var() / reg2["d_unrate"].var()
 
 # --- Calibration 3: 10Y yield as function of fed funds rate + trailing CPI YoY (contemporaneous) ---
 reg3 = pd.DataFrame({
-    "gs10": df["gs10"],
+    "yield10y": df["yield10y"],
     "fedfunds": df["fedfunds"],
     "cpi_yoy": df["cpi_yoy"],
 }).dropna()
 X = np.column_stack([reg3["fedfunds"], reg3["cpi_yoy"], np.ones(len(reg3))])
-coef3, *_ = np.linalg.lstsq(X, reg3["gs10"], rcond=None)
+coef3, *_ = np.linalg.lstsq(X, reg3["yield10y"], rcond=None)
 w_fedfunds, w_cpi, c3 = coef3
 pred3 = X @ coef3
-resid3 = reg3["gs10"] - pred3
+resid3 = reg3["yield10y"] - pred3
 sigma3 = resid3.std()
-r2_3 = 1 - resid3.var() / reg3["gs10"].var()
+r2_3 = 1 - resid3.var() / reg3["yield10y"].var()
 
 calibration = {
     "neutral_real_rate": round(float(neutral_real_rate), 4),
@@ -90,8 +107,10 @@ calibration = {
 
 print(json.dumps(calibration, indent=2))
 
-# --- Build historical game dataset (Volcker window with lead-in for YoY/lag calcs) ---
-hist = df.loc["1979-01-01":"1984-01-01", ["cpi", "cpi_yoy", "fedfunds", "gs10", "unrate", "real_rate"]].copy()
+# --- Build full historical game dataset, entire common range across all 5 series ---
+# (cpi_yoy/cpi_core_yoy are NaN for the first 12 months of the merged window, since
+# they need a year-ago value; drop those rows rather than emit NaN into the JSON)
+hist = df[["cpi", "cpi_yoy", "cpi_core", "cpi_core_yoy", "fedfunds", "yield10y", "unrate", "real_rate"]].dropna().copy()
 hist = hist.round(4)
 records = []
 for date, row in hist.iterrows():
@@ -99,17 +118,19 @@ for date, row in hist.iterrows():
         "date": date.strftime("%Y-%m"),
         "cpi_index": row["cpi"],
         "cpi_yoy": row["cpi_yoy"],
+        "cpi_core_index": row["cpi_core"],
+        "cpi_core_yoy": row["cpi_core_yoy"],
         "fedfunds": row["fedfunds"],
-        "gs10": row["gs10"],
+        "yield10y": row["yield10y"],
         "unrate": row["unrate"],
         "real_rate": row["real_rate"],
     })
 
-with open(os.path.join(OUT_DATA, "volcker_history.json"), "w") as f:
+with open(os.path.join(OUT_DATA, "full_history.json"), "w") as f:
     json.dump(records, f, indent=2)
 
 with open(os.path.join(OUT_DATA, "calibration.json"), "w") as f:
     json.dump(calibration, f, indent=2)
 
-print(f"\nWrote {len(records)} months of history to data/volcker_history.json")
+print(f"\nWrote {len(records)} months of history to data/full_history.json ({records[0]['date']} - {records[-1]['date']})")
 print("Wrote calibration.json")
