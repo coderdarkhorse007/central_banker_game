@@ -82,9 +82,10 @@ body {
 }
 
 .turn-readout .value {
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   font-weight: 600;
   color: var(--accent);
+  white-space: nowrap;
 }
 
 #range-panel {
