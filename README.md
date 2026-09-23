@@ -7,7 +7,7 @@ quarter, and watch inflation, unemployment, and the 10-year Treasury yield
 respond — then compare your path against what actually happened. A one-click
 preset replays the full 5-year Volcker disinflation.
 
-Play it live: *(add your GitHub Pages URL here once deployed)*
+Play it live: https://coderdarkhorse007.github.io/central_banker_game/
 
 ## How it works
 
@@ -73,8 +73,8 @@ Then open `http://localhost:8000/`.
 ## Deploying to GitHub Pages
 
 1. Push this repo to GitHub.
-2. In the repo settings, under **Pages**, set the source to the `main` branch,
-   root folder.
+2. In the repo settings, under **Pages**, set the source to your default branch
+   (`master` or `main`, whichever this repo uses), root folder.
 3. Your game will be live at `https://<username>.github.io/<repo-name>/`.
 
 No build step is required — it's static HTML/CSS/JS plus two CDN-hosted
