@@ -23,7 +23,7 @@ function refreshStats() {
   el("stat-fedfunds").textContent = fmtPct(snap.fedfunds);
   el("stat-yield10y").textContent = fmtPct(snap.yield10y);
   el("stat-unrate").textContent = fmtPct(snap.unrate);
-  el("stat-marketx").textContent = snap.marketX.toFixed(1);
+  el("stat-pressure").textContent = snap.pressureIndex.toFixed(1);
 
   const ghostText = (key) => (real ? `history: ${fmtPct(real[key])}` : `history: not yet reported`);
   el("stat-cpi-ghost").textContent = ghostText("cpi_yoy");
@@ -31,8 +31,8 @@ function refreshStats() {
   el("stat-fedfunds-ghost").textContent = ghostText("fedfunds");
   el("stat-yield10y-ghost").textContent = ghostText("yield10y");
   el("stat-unrate-ghost").textContent = ghostText("unrate");
-  const marketXReturnPct = snap.marketXReturn * 100;
-  el("stat-marketx-ghost").textContent = `this quarter: ${marketXReturnPct >= 0 ? "+" : ""}${marketXReturnPct.toFixed(1)}%`;
+  const pressureIndexReturnPct = snap.pressureIndexReturn * 100;
+  el("stat-pressure-ghost").textContent = `this quarter: ${pressureIndexReturnPct >= 0 ? "+" : ""}${pressureIndexReturnPct.toFixed(1)}%`;
 
   el("turn-counter").textContent = `${game.turn} / ${game.totalTurns}`;
   el("date-readout").textContent = game.currentDateLabel;

@@ -29,20 +29,20 @@ Play it live: https://coderdarkhorse007.github.io/central_banker_game/
   Both headline and core CPI are simulated for "your path": core is modeled as
   headline minus a food/energy "spread" that starts at its real observed value
   and drifts back toward its long-run historical average.
-- **Market X**: a fictional commodity index with no real FRED counterpart. It
-  drifts on its own each quarter and feeds directly into the headline/core
-  spread — exactly like a real-world supply shock, it moves headline inflation
-  without the Fed having any direct control over it.
+- **The Pressure Index**: a fictional commodity index with no real FRED
+  counterpart. It drifts on its own each quarter and feeds directly into the
+  headline/core spread — exactly like a real-world supply shock, it moves
+  headline inflation without the Fed having any direct control over it.
 - **Random shocks**: each quarter there's roughly a 1-in-5 chance of a
-  macro event firing — a Market X spike/crash, a demand boom/bust, a
+  macro event firing — a Pressure Index spike/crash, a demand boom/bust, a
   financial-stress yield spike, or a labor-market shock — narrated in the
   Briefing panel. Effects decay over the following quarters rather than
   resetting instantly.
 - **Visualization**: The "Economic System" panel is a WebGL scene (three.js)
-  showing rate/inflation/yield/unemployment/Market X as connected, reactive
-  nodes — styled in the spirit of NVIDIA Omniverse's connected-system visuals,
-  but implemented natively in the browser so anyone can open the link with no
-  install and no GPU streaming cost.
+  showing rate/inflation/yield/unemployment/Pressure Index as connected,
+  reactive nodes — styled in the spirit of NVIDIA Omniverse's connected-system
+  visuals, but implemented natively in the browser so anyone can open the link
+  with no install and no GPU streaming cost.
 
 ## Project structure
 
