@@ -1,28 +1,30 @@
-const TURN_LENGTH_MONTHS = 3; // turns advance roughly one quarter at a time
+const TURN_LENGTH_MONTHS = 3; // each turn is one quarter
 
-// Every month present in the dataset, in order. The start/end range picker in
-// main.js indexes into this array, so any month can be chosen as a boundary —
-// not just calendar quarter-starts.
+// Every month present in the dataset, in order. The start-month slider in
+// main.js indexes into this array — any real month can be chosen as a start,
+// including the most recently published one.
 function getAllDates(historyRecords) {
   return historyRecords.map((r) => r.date);
 }
 
-function monthsBetween(a, b) {
-  const [ay, am] = a.split("-").map(Number);
-  const [by, bm] = b.split("-").map(Number);
-  return (by - ay) * 12 + (bm - am);
+// Calendar month arithmetic on "YYYY-MM" strings — used to project turn dates
+// forward even past the edge of the dataset, since a term that starts near
+// the present necessarily runs into months FRED hasn't published yet.
+function addMonths(ym, n) {
+  const [y, m] = ym.split("-").map(Number);
+  const total = y * 12 + (m - 1) + n;
+  const newY = Math.floor(total / 12);
+  const newM = (total % 12) + 1;
+  return `${newY}-${String(newM).padStart(2, "0")}`;
 }
 
-// Turns are spaced ~TURN_LENGTH_MONTHS apart starting from startDate, so a
-// playthrough is a manageable number of clicks even over a multi-decade
-// window — but the chosen start and end months are always hit exactly, even
-// if that makes the final turn shorter or longer than the others.
-function buildTurnDates(allDates, startIdx, endIdx) {
-  const dates = [allDates[startIdx]];
-  let i = startIdx;
-  while (i < endIdx) {
-    i = Math.min(i + TURN_LENGTH_MONTHS, endIdx);
-    dates.push(allDates[i]);
+// One turn date per quarter, starting at startDate, for termQuarters turns —
+// computed by calendar arithmetic so it always hits exactly termQuarters
+// turns even when that runs past the last real month in the dataset.
+function buildTurnDates(startDate, termQuarters) {
+  const dates = [];
+  for (let i = 0; i <= termQuarters; i++) {
+    dates.push(addMonths(startDate, i * TURN_LENGTH_MONTHS));
   }
   return dates;
 }
@@ -49,14 +51,13 @@ function formatDateLabel(ym) {
 }
 
 class Game {
-  constructor(historyRecords, allDates, startDate, endDate) {
+  constructor(historyRecords, startDate, termQuarters) {
     this.byMonth = {};
     historyRecords.forEach((r) => (this.byMonth[r.date] = r));
+    this.latestRealDate = historyRecords[historyRecords.length - 1].date;
 
-    const startIdx = allDates.indexOf(startDate);
-    const endIdx = allDates.indexOf(endDate);
-    this.quarterDates = buildTurnDates(allDates, startIdx, endIdx);
-    this.totalTurns = this.quarterDates.length - 1;
+    this.quarterDates = buildTurnDates(startDate, termQuarters);
+    this.totalTurns = termQuarters;
 
     const initial = this.byMonth[this.quarterDates[0]];
     this.state = new EconomyState(initial);
@@ -76,6 +77,8 @@ class Game {
     return formatDateLabel(this.quarterDates[this.totalTurns]);
   }
 
+  // undefined once the playthrough runs past the last month FRED has
+  // published — there's simply no "actual history" to compare against yet.
   get realHistoryAtCurrentTurn() {
     return this.byMonth[this.quarterDates[this.turn]];
   }
@@ -100,12 +103,10 @@ class Game {
 
   advanceTurn(targetRate) {
     if (this.finished) return null;
-    const prevDateKey = this.quarterDates[this.turn];
     const prevSnap = this.state.snapshot(this.currentDateLabel, this.turn);
     this.turn += 1;
     const dateKey = this.quarterDates[this.turn];
-    const monthsElapsed = monthsBetween(prevDateKey, dateKey);
-    const snap = this.state.advance(targetRate, monthsElapsed, this.turn, formatDateLabel(dateKey));
+    const snap = this.state.advance(targetRate, this.turn, formatDateLabel(dateKey));
 
     let text = this.proceduralCommentary(prevSnap, snap);
     if (FLAVOR_EVENTS[dateKey]) text = FLAVOR_EVENTS[dateKey] + " " + text;
@@ -147,9 +148,11 @@ class Game {
       playerEndCpi: playerEnd.cpiYoy,
       playerEndUnrate: playerEnd.unrate,
       playerEndYield10y: playerEnd.yield10y,
-      realEndCpi: realEnd.cpi_yoy,
-      realEndUnrate: realEnd.unrate,
-      realEndYield10y: realEnd.yield10y,
+      hasRealEnd: !!realEnd,
+      realEndCpi: realEnd ? realEnd.cpi_yoy : null,
+      realEndUnrate: realEnd ? realEnd.unrate : null,
+      realEndYield10y: realEnd ? realEnd.yield10y : null,
+      latestRealDateLabel: formatDateLabel(this.latestRealDate),
       avgExcessUnemployment: excessUnemployment,
       verdict,
       verdictClass,

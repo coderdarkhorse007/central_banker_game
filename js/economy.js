@@ -45,22 +45,19 @@ class EconomyState {
     };
   }
 
-  // Advance `monthsElapsed` months (usually 3, i.e. one quarter) holding
-  // fedfunds constant at targetRate. monthsElapsed can differ from 3 for the
-  // final turn of a playthrough, when the chosen end month isn't an exact
-  // multiple of a quarter away from the start.
-  advance(targetRate, monthsElapsed, turnIndex, dateLabel) {
+  // Advance one quarter (3 monthly sub-steps) holding fedfunds constant at
+  // targetRate.
+  advance(targetRate, turnIndex, dateLabel) {
     const cfg = ECONOMY_CONFIG;
     const prevRate = this.fedfunds;
-    const moveCap = cfg.maxRateMovePerTurn * (monthsElapsed / 3);
     const clampedTarget = Math.min(
-      Math.max(targetRate, prevRate - moveCap),
-      prevRate + moveCap
+      Math.max(targetRate, prevRate - cfg.maxRateMovePerTurn),
+      prevRate + cfg.maxRateMovePerTurn
     );
     const rate = Math.min(Math.max(clampedTarget, cfg.minRate), cfg.maxRate);
     this.fedfunds = rate;
 
-    for (let m = 0; m < monthsElapsed; m++) {
+    for (let m = 0; m < 3; m++) {
       const realRate = this.fedfunds - this.cpiYoy;
       const realRateGap = realRate - cfg.neutralRealRate;
 
