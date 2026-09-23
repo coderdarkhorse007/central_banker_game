@@ -1,11 +1,15 @@
 # Central Banker
 
 A browser game that puts you at the helm of the Federal Reserve for any period of
-history you pick — from the Volcker disinflation of 1979–83 to today's Fed. Pick a
-term length (1 to 5 years) and a starting month, set the fed funds rate every
+history you pick — from the Volcker disinflation of 1979–84 to today's Fed. Pick a
+term length (1 to 5 years) and a starting month, set the federal funds rate every
 quarter, and watch inflation, unemployment, and the 10-year Treasury yield
 respond — then compare your path against what actually happened. A one-click
 preset replays the full 5-year Volcker disinflation.
+
+This is a fictional simulation for entertainment and educational purposes, not
+a forecasting tool — see the disclaimer banner in-app for what's real FRED data
+versus fictional.
 
 Play it live: https://coderdarkhorse007.github.io/central_banker_game/
 
