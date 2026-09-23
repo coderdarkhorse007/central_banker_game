@@ -1,0 +1,24 @@
+{
+  "neutral_real_rate": 3.5645,
+  "inflation_model": {
+    "lag_months": 12,
+    "intercept": -0.06506,
+    "slope_vs_real_rate_gap": -0.02211,
+    "noise_std": 0.42157,
+    "r_squared": 0.0306
+  },
+  "unemployment_model": {
+    "lag_months": 9,
+    "intercept": 0.01113,
+    "slope_vs_real_rate_gap": -0.00381,
+    "noise_std": 0.22242,
+    "r_squared": 0.0033
+  },
+  "yield10y_model": {
+    "weight_fedfunds": 0.61397,
+    "weight_cpi_yoy": -0.30477,
+    "intercept": 6.79085,
+    "noise_std": 1.03416,
+    "r_squared": 0.7086
+  }
+}

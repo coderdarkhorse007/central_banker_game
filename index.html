@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Central Banker: The Volcker Disinflation</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div id="app">
+
+  <header id="app-header">
+    <div class="header-left">
+      <h1>Central Banker</h1>
+      <p class="subtitle">1979&ndash;1983 &middot; The Volcker Disinflation</p>
+    </div>
+    <div class="header-right">
+      <div class="turn-readout">
+        <span class="label">Quarter</span>
+        <span id="turn-counter" class="value">0 / 20</span>
+      </div>
+      <div class="turn-readout">
+        <span class="label">Date</span>
+        <span id="date-readout" class="value">Jan 1979</span>
+      </div>
+    </div>
+  </header>
+
+  <main id="app-main">
+
+    <section id="viz-panel" class="panel">
+      <h2>Economic System</h2>
+      <div id="viz-canvas-container">
+        <canvas id="viz-canvas"></canvas>
+      </div>
+      <p class="viz-caption">Rate node drives the inflation and yield nodes; unemployment reacts with a lag.</p>
+    </section>
+
+    <section id="stats-panel" class="panel">
+      <h2>Current Readings</h2>
+      <div class="stat-grid">
+        <div class="stat">
+          <span class="stat-label">CPI Inflation (YoY)</span>
+          <span id="stat-cpi" class="stat-value">9.3%</span>
+          <span id="stat-cpi-ghost" class="stat-ghost">history: 9.3%</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Fed Funds Rate</span>
+          <span id="stat-fedfunds" class="stat-value">10.1%</span>
+          <span id="stat-fedfunds-ghost" class="stat-ghost">history: 10.1%</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">10-Year Treasury Yield</span>
+          <span id="stat-gs10" class="stat-value">9.1%</span>
+          <span id="stat-gs10-ghost" class="stat-ghost">history: 9.1%</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Unemployment</span>
+          <span id="stat-unrate" class="stat-value">5.9%</span>
+          <span id="stat-unrate-ghost" class="stat-ghost">history: 5.9%</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="control-panel" class="panel">
+      <h2>Set Fed Funds Rate</h2>
+      <div class="rate-control">
+        <input type="range" id="rate-slider" min="0" max="25" step="0.25" value="10.07" />
+        <div class="rate-slider-value"><span id="rate-slider-readout">10.07</span>%</div>
+      </div>
+      <div class="rate-buttons">
+        <button data-delta="-1">&minus;1.0</button>
+        <button data-delta="-0.5">&minus;0.5</button>
+        <button data-delta="0">Hold</button>
+        <button data-delta="0.5">+0.5</button>
+        <button data-delta="1">+1.0</button>
+      </div>
+      <p class="rate-cap-note">Max move per quarter: &plusmn;3.0 points</p>
+      <button id="advance-btn" class="advance-btn">Advance Quarter &rarr;</button>
+    </section>
+
+    <section id="news-panel" class="panel">
+      <h2>Briefing</h2>
+      <div id="news-log"></div>
+    </section>
+
+    <section id="charts-panel" class="panel">
+      <h2>Trajectories</h2>
+      <div class="chart-grid">
+        <div class="chart-box"><canvas id="chart-cpi"></canvas></div>
+        <div class="chart-box"><canvas id="chart-rates"></canvas></div>
+        <div class="chart-box"><canvas id="chart-unrate"></canvas></div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer id="app-footer">
+    <p>Simplified illustrative model calibrated loosely from FRED data (CPIAUCSL, FEDFUNDS, GS10, UNRATE), 1977&ndash;1985. Not a forecast.</p>
+  </footer>
+
+</div>
+
+<div id="end-modal" class="modal hidden">
+  <div class="modal-content">
+    <h2 id="end-title">Term Complete</h2>
+    <div id="end-summary"></div>
+    <button id="restart-btn">Play Again</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script src="js/economy.js"></script>
+<script src="js/visualization.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/game.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
