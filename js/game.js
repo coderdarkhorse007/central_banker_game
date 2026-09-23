@@ -109,7 +109,8 @@ class Game {
     const snap = this.state.advance(targetRate, this.turn, formatDateLabel(dateKey));
 
     let text = this.proceduralCommentary(prevSnap, snap);
-    if (FLAVOR_EVENTS[dateKey]) text = FLAVOR_EVENTS[dateKey] + " " + text;
+    if (snap.shockText) text = snap.shockText + " " + text;
+    else if (FLAVOR_EVENTS[dateKey]) text = FLAVOR_EVENTS[dateKey] + " " + text;
     this.addNews(dateKey, text);
 
     if (this.turn >= this.totalTurns) this.finished = true;

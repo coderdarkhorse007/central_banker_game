@@ -30,6 +30,7 @@ class EconomyVisualization {
       cpi: new THREE.Vector3(-2.1, -1.0, 0.6),
       gs10: new THREE.Vector3(2.1, -1.0, -0.6),
       unrate: new THREE.Vector3(0, -0.4, -2.0),
+      marketx: new THREE.Vector3(2.6, 0.6, 1.8),
     };
 
     this.nodes = {};
@@ -67,6 +68,10 @@ class EconomyVisualization {
       this.group.add(beam);
       this.beams[key3] = beam;
     }
+    // Market X isn't driven by the rate — it feeds INTO inflation instead.
+    const marketXBeam = this.makeBeam(this.nodePositions.marketx, this.nodePositions.cpi);
+    this.group.add(marketXBeam);
+    this.beams.marketx = marketXBeam;
 
     this.labels = this.makeLabelSprites();
 
@@ -92,7 +97,7 @@ class EconomyVisualization {
 
   makeLabelSprites() {
     const labels = {};
-    const text = { rate: "RATE", cpi: "CPI", gs10: "10Y", unrate: "UNEMP" };
+    const text = { rate: "RATE", cpi: "CPI", gs10: "10Y", unrate: "UNEMP", marketx: "MKT-X" };
     for (const key of Object.keys(this.nodePositions)) {
       const canvas = document.createElement("canvas");
       canvas.width = 256;
@@ -142,6 +147,9 @@ class EconomyVisualization {
 
     const unrateT = (snap.unrate - 4) / 10;
     this._setNode("unrate", unrateT, 0.35 + Math.min(Math.max(unrateT, 0), 1) * 0.4);
+
+    const marketXT = Math.min(Math.abs(snap.marketXReturn) / 0.3, 1);
+    this._setNode("marketx", marketXT, 0.35 + marketXT * 0.4);
 
     const stress = (Math.min(Math.max(cpiT, 0), 1) + Math.min(Math.max(unrateT, 0), 1)) / 2;
     const coreColor = EconomyVisualization.lerpColor(0x4fd1c5, 0xfc8181, stress);

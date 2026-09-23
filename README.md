@@ -2,9 +2,10 @@
 
 A browser game that puts you at the helm of the Federal Reserve for any period of
 history you pick — from the Volcker disinflation of 1979–83 to today's Fed. Pick a
-term length (1 or 2 years) and a starting month, set the fed funds rate every
+term length (1 to 5 years) and a starting month, set the fed funds rate every
 quarter, and watch inflation, unemployment, and the 10-year Treasury yield
-respond — then compare your path against what actually happened.
+respond — then compare your path against what actually happened. A one-click
+preset replays the full 5-year Volcker disinflation.
 
 Play it live: *(add your GitHub Pages URL here once deployed)*
 
@@ -14,8 +15,9 @@ Play it live: *(add your GitHub Pages URL here once deployed)*
   from real FRED series — `CPIAUCSL` (headline CPI), `CPILFESL` (core CPI, ex
   food & energy), `FEDFUNDS`, `DGS10` (10-year Treasury yield, resampled from
   daily to monthly averages), and `UNRATE` — covering Jan 1962 through the most
-  recently published month. The picker lets you choose a 1-year (4-quarter) or
-  2-year (8-quarter) term starting from any month in that window.
+  recently published month. The picker lets you choose a 1–5 year term starting
+  from any month in that window, including the most recent one — turns past the
+  latest published month simply have no "actual history" to compare against yet.
 - **Simulation**: Turn-by-turn dynamics come from a simplified, hand-tuned
   Phillips-curve/Okun's-law toy model (`js/economy.js`) — not a forecast, and not
   fit directly to the historical data (a raw regression on this noisy window
@@ -24,13 +26,22 @@ Play it live: *(add your GitHub Pages URL here once deployed)*
   pinned to whatever the actual unemployment rate was on the quarter you start,
   so the model behaves reasonably regardless of which era you pick. The 10-year
   yield response *is* fit via OLS regression on the full FRED window (R² ≈ 0.81).
-  Only headline CPI is simulated for "your path" — core CPI is shown as a
-  historical reference line only.
+  Both headline and core CPI are simulated for "your path": core is modeled as
+  headline minus a food/energy "spread" that starts at its real observed value
+  and drifts back toward its long-run historical average.
+- **Market X**: a fictional commodity index (a crude-oil stand-in) with no real
+  FRED counterpart. It drifts on its own each quarter and feeds directly into
+  the headline/core spread — exactly like a real energy shock, it moves
+  headline inflation without the Fed having any direct control over it.
+- **Random shocks**: each quarter there's roughly a 1-in-5 chance of a
+  macro event firing — an oil spike/crash, a demand boom/bust, a financial-stress
+  yield spike, or a labor-market shock — narrated in the Briefing panel. Effects
+  decay over the following quarters rather than resetting instantly.
 - **Visualization**: The "Economic System" panel is a WebGL scene (three.js)
-  showing rate/inflation/yield/unemployment as connected, reactive nodes — styled
-  in the spirit of NVIDIA Omniverse's connected-system visuals, but implemented
-  natively in the browser so anyone can open the link with no install and no GPU
-  streaming cost.
+  showing rate/inflation/yield/unemployment/Market X as connected, reactive
+  nodes — styled in the spirit of NVIDIA Omniverse's connected-system visuals,
+  but implemented natively in the browser so anyone can open the link with no
+  install and no GPU streaming cost.
 
 ## Project structure
 

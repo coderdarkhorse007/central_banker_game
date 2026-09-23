@@ -93,9 +93,21 @@ class ChartSet {
     });
     this.unrateChart.data.datasets[1].data = ghostSeries.unrate;
 
+    // Market X is entirely fictional — there's no real FRED counterpart, so
+    // this chart is a single "Your path" line with no ghost/history dataset.
+    this.marketXChart = new Chart(document.getElementById("chart-marketx"), {
+      type: "line",
+      data: {
+        labels,
+        datasets: [makeLineDataset("Market X Index", CHART_COLORS.player2, false)],
+      },
+      options: baseChartOptions("Index (start = 100)"),
+    });
+
     this.cpiChart.update();
     this.ratesChart.update();
     this.unrateChart.update();
+    this.marketXChart.update();
   }
 
   pushSnapshot(turnIndex, snap) {
@@ -104,15 +116,18 @@ class ChartSet {
     this.ratesChart.data.datasets[0].data[turnIndex] = snap.fedfunds;
     this.ratesChart.data.datasets[1].data[turnIndex] = snap.yield10y;
     this.unrateChart.data.datasets[0].data[turnIndex] = snap.unrate;
+    this.marketXChart.data.datasets[0].data[turnIndex] = snap.marketX;
     this.cpiChart.update();
     this.ratesChart.update();
     this.unrateChart.update();
+    this.marketXChart.update();
   }
 
   destroy() {
     this.cpiChart.destroy();
     this.ratesChart.destroy();
     this.unrateChart.destroy();
+    this.marketXChart.destroy();
   }
 }
 

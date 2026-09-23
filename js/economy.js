@@ -24,7 +24,106 @@ const ECONOMY_CONFIG = {
   // both headline and core share via the same output gap).
   avgHeadlineCoreSpread: 0.0424, // long-run avg of (headline YoY - core YoY), 1962-present (FRED)
   spreadPersistence: 0.97,       // monthly persistence of the spread, same cadence as the output gap
+  // "Market X" — a fictional globally-traded commodity (a crude-oil stand-in)
+  // with its own price index. Its quarterly return feeds straight into the
+  // headline/core spread, exactly like a real energy shock: it moves headline
+  // inflation without monetary policy having any direct control over it.
+  marketX: {
+    startLevel: 100,
+    quarterlyVolStd: 0.04,       // routine quarterly volatility (Gaussian, ~4% std dev)
+    oilPassThroughToSpread: 0.15, // pp added to the headline/core spread per 100% Market X move
+  },
+  shockProbability: 0.20, // chance PER QUARTER that a random macro shock fires
+  yieldShockDecay: 0.6,   // quarterly decay of a financial-stress yield premium
+  unrateShockDecay: 0.5,  // quarterly decay of a labor-shock unemployment wedge
 };
+
+// Approximate standard normal via Box-Muller — used for Market X's routine
+// quarterly noise (the discrete SHOCK_TYPES below layer larger, rarer moves
+// on top of this).
+function gaussianRandom() {
+  const u = Math.max(Math.random(), 1e-9);
+  const v = Math.random();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+
+// A small table of one-off macro events. Each quarter there's a
+// shockProbability chance that exactly one of these fires (weighted by
+// `weight`), narrated in the news feed. Magnitudes are hand-tuned for
+// gameplay drama, not fit to data — same spirit as the rest of this model.
+const SHOCK_TYPES = [
+  {
+    key: "oil_spike",
+    weight: 3,
+    apply: () => {
+      const magnitude = 0.15 + Math.random() * 0.20; // +15% to +35%
+      return {
+        marketXKick: magnitude,
+        text: `Market X spikes ${(magnitude * 100).toFixed(0)}% on a sudden supply disruption — expect headline inflation to run hotter than core for a while.`,
+      };
+    },
+  },
+  {
+    key: "oil_crash",
+    weight: 2,
+    apply: () => {
+      const magnitude = 0.15 + Math.random() * 0.20;
+      return {
+        marketXKick: -magnitude,
+        text: `Market X plunges ${(magnitude * 100).toFixed(0)}% as supply floods the market — headline inflation gets relief that core won't show.`,
+      };
+    },
+  },
+  {
+    key: "demand_boom",
+    weight: 2,
+    apply: (state) => {
+      const kick = 1.0 + Math.random() * 1.5;
+      state.outputGap += kick;
+      return { text: "A wave of unexpected demand hits the economy — spending picks up faster than anyone forecast." };
+    },
+  },
+  {
+    key: "demand_bust",
+    weight: 2,
+    apply: (state) => {
+      const kick = 1.0 + Math.random() * 1.5;
+      state.outputGap -= kick;
+      return { text: "A sudden confidence shock hits spending — households and businesses pull back sharply." };
+    },
+  },
+  {
+    key: "financial_stress",
+    weight: 2,
+    apply: (state) => {
+      const kick = 0.5 + Math.random() * 1.0;
+      state.yieldShock += kick;
+      return { text: "Financial markets wobble — investors demand a higher risk premium, pushing the 10-year yield up independent of the Fed." };
+    },
+  },
+  {
+    key: "labor_shock",
+    weight: 2,
+    apply: (state) => {
+      const kick = 0.3 + Math.random() * 0.7;
+      const sign = Math.random() < 0.5 ? -1 : 1;
+      state.unrateShock += sign * kick;
+      return sign > 0
+        ? { text: "A wave of layoffs hits a major industry, pushing unemployment up." }
+        : { text: "A hiring surge in a fast-growing sector pulls unemployment down." };
+    },
+  },
+];
+
+function pickWeightedShock() {
+  const totalWeight = SHOCK_TYPES.reduce((sum, s) => sum + s.weight, 0);
+  let r = Math.random() * totalWeight;
+  for (const shock of SHOCK_TYPES) {
+    r -= shock.weight;
+    if (r <= 0) return shock;
+  }
+  return SHOCK_TYPES[SHOCK_TYPES.length - 1];
+}
 
 class EconomyState {
   constructor(initial) {
@@ -38,6 +137,10 @@ class EconomyState {
     this.uNatural = initial.unrate;
     this.outputGap = 0;
     this.spread = initial.cpi_yoy - initial.cpi_core_yoy;
+    this.marketX = ECONOMY_CONFIG.marketX.startLevel;
+    this.marketXReturn = 0;
+    this.yieldShock = 0;
+    this.unrateShock = 0;
     this.history = [this.snapshot(initial.date, 0)];
   }
 
@@ -55,13 +158,44 @@ class EconomyState {
       fedfunds: this.fedfunds,
       yield10y: this.yield10y,
       outputGap: this.outputGap,
+      marketX: this.marketX,
+      marketXReturn: this.marketXReturn,
+      shockText: null,
     };
+  }
+
+  // Rolls Market X's quarterly return (routine noise, plus a possible
+  // discrete shock) and applies whichever shock fired, if any. Returns a
+  // news blurb describing the shock, or null if nothing happened.
+  rollShocksAndMarketX() {
+    const cfg = ECONOMY_CONFIG;
+    let marketXReturn = gaussianRandom() * cfg.marketX.quarterlyVolStd;
+    let shockText = null;
+
+    if (Math.random() < cfg.shockProbability) {
+      const shock = pickWeightedShock();
+      const result = shock.apply(this);
+      if (result.marketXKick) marketXReturn += result.marketXKick;
+      shockText = result.text;
+    }
+
+    this.marketX = Math.max(this.marketX * (1 + marketXReturn), 1);
+    this.marketXReturn = marketXReturn;
+    this.spread += marketXReturn * cfg.marketX.oilPassThroughToSpread * 100;
+
+    return shockText;
   }
 
   // Advance one quarter (3 monthly sub-steps) holding fedfunds constant at
   // targetRate.
   advance(targetRate, turnIndex, dateLabel) {
     const cfg = ECONOMY_CONFIG;
+
+    // Fade last quarter's shocks before possibly layering on a fresh one.
+    this.yieldShock *= cfg.yieldShockDecay;
+    this.unrateShock *= cfg.unrateShockDecay;
+    const shockText = this.rollShocksAndMarketX();
+
     const prevRate = this.fedfunds;
     const clampedTarget = Math.min(
       Math.max(targetRate, prevRate - cfg.maxRateMovePerTurn),
@@ -78,7 +212,7 @@ class EconomyState {
       this.outputGap = Math.min(Math.max(this.outputGap, -10), 10); // plausibility clamp
       this.cpiYoy = this.cpiYoy + cfg.kPI * this.outputGap;
       this.cpiYoy = Math.min(Math.max(this.cpiYoy, -2), 30); // clamp deflation/hyperinflation extremes
-      this.unrate = Math.min(Math.max(this.uNatural - cfg.okunCoef * this.outputGap, 1.0), 20);
+      this.unrate = Math.min(Math.max(this.uNatural - cfg.okunCoef * this.outputGap + this.unrateShock, 1.0), 20);
       this.spread =
         cfg.spreadPersistence * this.spread +
         (1 - cfg.spreadPersistence) * cfg.avgHeadlineCoreSpread;
@@ -87,10 +221,12 @@ class EconomyState {
     this.yield10y =
       cfg.yield10y.intercept +
       cfg.yield10y.weightFedFunds * this.fedfunds +
-      cfg.yield10y.weightCpiYoy * this.cpiYoy;
+      cfg.yield10y.weightCpiYoy * this.cpiYoy +
+      this.yieldShock;
     this.yield10y = Math.max(this.yield10y, 0.1);
 
     const snap = this.snapshot(dateLabel, turnIndex);
+    snap.shockText = shockText;
     this.history.push(snap);
     return snap;
   }
